@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>アイコン生成ツール</title>
+<style>
+body{font-family:sans-serif;padding:2rem;background:#f9f9f8}
+canvas{border:1px solid #ddd;margin:8px}
+button{padding:10px 20px;background:#FF9900;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;margin-top:1rem}
+button:hover{opacity:.85}
+p{color:#666;margin-top:1rem;font-size:13px}
+</style>
+</head>
+<body>
+<h2>SAA Quiz アイコン生成</h2>
+<p>ボタンを押すと icon-192.png と icon-512.png が自動ダウンロードされます。<br>
+ダウンロードされたファイルを <code>icons/</code> フォルダに移動してください。</p>
+<div>
+  <canvas id="c192" width="192" height="192"></canvas>
+  <canvas id="c512" width="512" height="512"></canvas>
+</div>
+<button onclick="downloadIcons()">アイコンをダウンロード</button>
+
+<script>
+function drawIcon(canvas){
+  const s=canvas.width;
+  const ctx=canvas.getContext('2d');
+
+  // 背景（丸角）
+  const r=s*0.18;
+  ctx.beginPath();
+  ctx.moveTo(r,0);ctx.lineTo(s-r,0);ctx.arcTo(s,0,s,r,r);
+  ctx.lineTo(s,s-r);ctx.arcTo(s,s,s-r,s,r);
+  ctx.lineTo(r,s);ctx.arcTo(0,s,0,s-r,r);
+  ctx.lineTo(0,r);ctx.arcTo(0,0,r,0,r);
+  ctx.closePath();
+  ctx.fillStyle='#FF9900';
+  ctx.fill();
+
+  // "SAA" テキスト
+  ctx.fillStyle='#fff';
+  ctx.font=`bold ${s*0.28}px -apple-system,sans-serif`;
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText('SAA',s/2,s*0.42);
+
+  // "Quiz" テキスト（小）
+  ctx.font=`${s*0.13}px -apple-system,sans-serif`;
+  ctx.fillStyle='rgba(255,255,255,0.85)';
+  ctx.fillText('Quiz',s/2,s*0.67);
+}
+
+function downloadIcons(){
+  const c192=document.getElementById('c192');
+  const c512=document.getElementById('c512');
+  drawIcon(c192);
+  drawIcon(c512);
+
+  const a192=document.createElement('a');
+  a192.href=c192.toDataURL('image/png');
+  a192.download='icon-192.png';
+  a192.click();
+
+  setTimeout(()=>{
+    const a512=document.createElement('a');
+    a512.href=c512.toDataURL('image/png');
+    a512.download='icon-512.png';
+    a512.click();
+  },500);
+}
+
+// プレビュー描画
+drawIcon(document.getElementById('c192'));
+drawIcon(document.getElementById('c512'));
+</script>
+</body>
+</html>

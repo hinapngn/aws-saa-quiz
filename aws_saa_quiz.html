@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS SAA 問題集</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a1a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SAA Quiz">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f9f9f8;color:#1a1a1a;padding:1.5rem;touch-action:manipulation}
+.qw{max-width:680px;margin:0 auto}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.hdr-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ttl{font-size:15px;font-weight:500}
+.badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:6px;background:#dbeafe;color:#1d4ed8}
+.badge-warn{background:#fef3c7;color:#92400e}
+.badge-diff{font-size:11px;font-weight:500;padding:3px 9px;border-radius:6px}
+.diff-easy{background:#EAF3DE;color:#3B6D11}.diff-mid{background:#FAEEDA;color:#854F0B}.diff-hard{background:#FCEBEB;color:#A32D2D}
+.pbar{height:3px;background:#e5e7eb;border-radius:2px;margin-bottom:1.25rem}
+.pfill{height:100%;background:#3b82f6;border-radius:2px;transition:width .3s}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.stat{background:#f3f4f6;border-radius:8px;padding:8px 10px;text-align:center}
+.stat-n{font-size:17px;font-weight:500}.stat-l{font-size:10px;color:#6b7280;margin-top:2px}
+.rv-banner{font-size:12px;margin-bottom:1rem;padding:8px 12px;border-radius:8px;border:0.5px solid #fca5a5;background:#fef2f2;color:#dc2626}
+.q-meta{font-size:12px;color:#9ca3af;margin-bottom:.5rem}
+.q-text{font-size:15px;font-weight:500;line-height:1.65;margin-bottom:1.1rem}
+.hint{font-size:12px;color:#6b7280;margin-bottom:.75rem}
+.choices{display:flex;flex-direction:column;gap:8px;margin-bottom:1.1rem}
+.choice{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:0.5px solid #e5e7eb;border-radius:10px;cursor:pointer;transition:all .15s;background:#fff}
+.choice:hover:not(.disabled){border-color:#d1d5db;background:#f9fafb}
+.choice.selected{border-color:#93c5fd;background:#eff6ff}
+.choice.correct{border-color:#6ee7b7;background:#f0fdf4}
+.choice.wrong{border-color:#fca5a5;background:#fef2f2}
+.choice.missed{border-color:#fcd34d;background:#fffbeb}
+.choice.disabled{cursor:default}
+.ck{font-size:12px;font-weight:500;min-width:18px;color:#9ca3af;padding-top:1px}
+.choice.selected .ck{color:#3b82f6}.choice.correct .ck{color:#059669}.choice.wrong .ck{color:#dc2626}.choice.missed .ck{color:#d97706}
+.ct{font-size:13px;line-height:1.55}
+.btn-row{display:flex;gap:8px;margin-bottom:1rem}
+button{cursor:pointer;border-radius:8px;font-size:13px;font-weight:500;padding:7px 18px;border:0.5px solid #e5e7eb;background:transparent;transition:all .15s}
+button:hover:not(:disabled){background:#f3f4f6}
+button:disabled{opacity:.4;cursor:default}
+.btn-p{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn-p:hover:not(:disabled){opacity:.85;background:#1a1a1a}
+.expl{margin-top:1rem;border-radius:10px;overflow:hidden;border:0.5px solid #e5e7eb}
+.expl-head{padding:10px 14px;font-size:13px;font-weight:500}
+.expl-ok{background:#f0fdf4;color:#059669;border-bottom:0.5px solid #6ee7b7}
+.expl-ng{background:#fef2f2;color:#dc2626;border-bottom:0.5px solid #fca5a5}
+.expl-body{padding:12px 14px;background:#fff}
+.esec{margin-bottom:10px}.esec:last-child{margin-bottom:0}
+.esec-ttl{font-size:11px;font-weight:500;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.esec-txt{font-size:13px;line-height:1.6}
+.wi-list{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.wi{padding:8px 10px;border-radius:8px;background:#f9fafb;border:0.5px solid #e5e7eb}
+.wi-k{font-size:11px;font-weight:500;color:#dc2626;margin-bottom:2px}
+.wi-t{font-size:12px;line-height:1.5}
+.rv-note{font-size:12px;color:#d97706;margin-top:8px;padding:6px 10px;border-radius:8px;background:#fffbeb}
+.sc{text-align:center;padding:1.5rem 0.5rem}
+.sc-num{font-size:48px;font-weight:500;margin:.75rem 0 .5rem}
+.sc-lbl{font-size:14px;color:#6b7280;margin-bottom:1.25rem}
+.sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:360px;margin:0 auto 1rem}
+.si{padding:10px;border-radius:8px;background:#f3f4f6}
+.si-n{font-size:20px;font-weight:500}.si-l{font-size:11px;color:#6b7280;margin-top:2px}
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:400px;margin:0 auto 1.25rem;text-align:left}
+.ti{padding:8px 10px;border-radius:8px;border:0.5px solid #e5e7eb;background:#fff}
+.ti-name{font-size:12px;font-weight:500}
+.ti-bg{height:3px;border-radius:2px;background:#e5e7eb;margin-top:5px;overflow:hidden}
+.ti-fill{height:100%;border-radius:2px}
+.info-bar{font-size:12px;color:#6b7280;margin-bottom:1rem;padding:8px 12px;border-radius:8px;background:#f3f4f6;display:flex;gap:16px;flex-wrap:wrap}
+.info-bar span{white-space:nowrap}
+@media(max-width:480px){
+  body{padding:.75rem}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .choice{padding:14px 12px}
+  button{padding:12px 16px;font-size:14px}
+  .btn-row{flex-direction:column}
+  .btn-row button{width:100%}
+  .q-text{font-size:15px}
+  .ct{font-size:14px}
+  .sc-grid{grid-template-columns:repeat(2,1fr)}
+  .sc-num{font-size:36px}
+  .tgrid{grid-template-columns:1fr}
+}
+@media(max-width:360px){
+  body{padding:.5rem}
+  .stat-n{font-size:15px}
+}
+@media(hover:none){
+  .choice:hover:not(.disabled){border-color:#e5e7eb;background:#fff}
+}
+</style>
+</head>
+<body>
+<div class="qw">
+  <div class="hdr">
+    <div class="hdr-left">
+      <span class="ttl">AWS SAA 問題集</span>
+      <span class="badge" id="type-badge">単一選択</span>
+      <span class="badge-diff diff-easy" id="diff-badge">易</span>
+    </div>
+    <span style="font-size:12px;color:#6b7280" id="q-counter">1 / 20</span>
+  </div>
+  <div class="pbar"><div class="pfill" id="progress" style="width:0%"></div></div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n" id="s-ok" style="color:#059669">0</div><div class="stat-l">正解</div></div>
+    <div class="stat"><div class="stat-n" id="s-ng" style="color:#dc2626">0</div><div class="stat-l">不正解</div></div>
+    <div class="stat"><div class="stat-n" id="s-rate">-</div><div class="stat-l">正答率</div></div>
+    <div class="stat"><div class="stat-n" id="s-rv" style="color:#d97706">0</div><div class="stat-l">復習待ち</div></div>
+  </div>
+  <div id="notify" style="display:none"></div>
+  <div id="qc"></div>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+</script>
+<script src="questions.js"></script>
+<script>
+const TH={network:"ネットワーク",compute:"コンピュート",storage:"ストレージ",database:"データベース",ha:"高可用性",security:"セキュリティ",cost:"コスト最適化",decoupling:"疎結合",serverless:"サーバーレス",migration:"移行",monitor:"監視・運用",analytics:"分析",elb_asg:"ELB/Auto Scaling",vpc:"VPC",iam:"IAM/Organizations",waf_shield:"WAF/Shield",kms:"KMS/CloudHSM",cloudfront:"CloudFront/Global Accelerator",rds_aurora:"RDS/Aurora",cloudwatch:"CloudWatch",cloudformation:"CloudFormation",systems_manager:"Systems Manager",sns_sqs:"SNS/SQS",kinesis:"Kinesis",glue_emr:"Glue/EMR",backup_dr:"Backup/DR",eventbridge:"EventBridge/Step Functions",sagemaker:"SageMaker"};
+const DL={1:"易",2:"中",3:"難"};
+const DC={1:"diff-easy",2:"diff-mid",3:"diff-hard"};
+const PER_ROUND=20;
+const RV_AFTER=30;
+
+// ── localStorage ──
+function lsGet(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch{return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+// ── セッション変数 ──
+let queue=[], pos=0, sesScore=0, sesWrong=0;
+
+// ── 永続データ ──
+// done    : [id, ...]  正解済みIDリスト
+// wrongMap: {id:{target:number}, ...}  復習スケジュール
+// stats   : {total,correct,wrong,theme:{}}
+// unseen  : [id, ...]  未出題IDリスト(シャッフル済み)
+
+function getDone()   { return new Set(lsGet('saa_done')  || []); }
+function getWrong()  { return lsGet('saa_wrong') || {}; }
+function getStats()  { return lsGet('saa_stats') || {total:0,correct:0,wrong:0,theme:{}}; }
+function getUnseen() { return lsGet('saa_unseen'); }
+
+function shuffle(a){
+  const b=[...a];
+  for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}
+  return b;
+}
+
+function buildSession(){
+  sesScore=0; sesWrong=0; pos=0; queue=[];
+
+  const done     = getDone();
+  const wrongMap = getWrong();
+  const stats    = getStats();
+  let   unseen   = getUnseen() || [];
+
+  // questions.js更新で増えた新規問題を unseen に自動追加
+  // done / unseen / wrongMap のいずれにも存在しないIDを検出
+  const knownIds = new Set([
+    ...[...done].map(String),
+    ...unseen.map(String),
+    ...Object.keys(wrongMap)
+  ]);
+  const brandNew = shuffle(
+    ALL_Q.map(q=>q.id).filter(id=>!knownIds.has(String(id)))
+  );
+  if(brandNew.length > 0){
+    unseen = [...unseen, ...brandNew];
+    lsSet('saa_unseen', unseen);
+  }
+
+  // ① 復習問題: targetに達したもの(上限10問)
+  const now = stats.total;
+  const rvIds = Object.keys(wrongMap)
+    .filter(id => wrongMap[id].target <= now)
+    .slice(0, 10);
+  const rvItems = rvIds.map(id=>({
+    q: ALL_Q.find(q=>String(q.id)===String(id)),
+    isRv: true
+  })).filter(it=>it.q);
+
+  // ② 新規問題(20 - 復習数)
+  const newCount = PER_ROUND - rvItems.length;
+  const newItems = [];
+  const consumed = new Set();
+  while(newItems.length < newCount && unseen.length > 0){
+    const id = unseen.shift();
+    const q  = ALL_Q.find(q=>String(q.id)===String(id));
+    if(q && !consumed.has(String(id))){
+      newItems.push({q, isRv:false});
+      consumed.add(String(id));
+    }
+  }
+  lsSet('saa_unseen', unseen);
+
+  // ③ キュー組み立て(復習をランダムに散りばめる)
+  const combined = shuffle([...newItems]);
+  rvItems.forEach((rv,i)=>{
+    const at = Math.min(i*4 + Math.floor(Math.random()*4), combined.length);
+    combined.splice(at, 0, rv);
+  });
+  queue = combined;
+
+  // queueが空 = 新規問題なし & 復習問題なし → 全問完了メッセージ
+  if(queue.length === 0){
+    const wrongPending = Object.keys(wrongMap).length;
+    document.getElementById('qc').innerHTML=
+      '<div class="sc">' +
+        '<div class="sc-num" style="font-size:36px">🎉</div>' +
+        '<div style="font-size:15px;font-weight:500;margin-bottom:.5rem">全問題を正解しました！</div>' +
+        '<div style="font-size:13px;color:#6b7280;margin-bottom:1.5rem">' +
+          (wrongPending > 0
+            ? '復習待ち ' + wrongPending + ' 問があります。もう少しで出題されます。'
+            : '新しい問題が追加されるまでお待ちください。') +
+        '</div>' +
+        '<button onclick="resetAll()" style="font-size:12px;color:#dc2626;border-color:#fca5a5">記録をリセット</button>' +
+      '</div>';
+    updateHUD();
+    return;
+  }
+
+  updateHUD();
+  renderQ();
+}
+
+// ── HUD ──
+function updateHUD(){
+  const wrongMap = getWrong();
+  document.getElementById('s-ok').textContent   = sesScore;
+  document.getElementById('s-ng').textContent   = sesWrong;
+  const d = sesScore+sesWrong;
+  document.getElementById('s-rate').textContent = d>0?Math.round(sesScore/d*100)+'%':'-';
+  document.getElementById('s-rv').textContent   = Object.keys(wrongMap).length;
+  document.getElementById('q-counter').textContent = (pos+1)+' / '+queue.length;
+  document.getElementById('progress').style.width  =
+    queue.length>0 ? Math.round(pos/queue.length*100)+'%' : '0%';
+}
+
+// ── 問題描画 ──
+function renderQ(){
+  if(pos >= queue.length){ showResult(); return; }
+  const it=queue[pos]; const q=it.q;
+  const isM=q.type==="multi"; const cnt=q.count||1;
+
+  document.getElementById('type-badge').textContent = isM?`複数選択 (${cnt}つ)`:'単一選択';
+  document.getElementById('type-badge').className   = 'badge'+(isM?' badge-warn':'');
+  document.getElementById('diff-badge').textContent = DL[q.diff]||'';
+  document.getElementById('diff-badge').className   = 'badge-diff '+(DC[q.diff]||'');
+  document.getElementById('diff-badge').style.display='';
+
+  const nEl=document.getElementById('notify');
+  if(it.isRv){nEl.className='rv-banner';nEl.style.display='block';
+    nEl.textContent='復習問題 — 以前に間違えた問題です。もう一度挑戦しましょう。';}
+  else{nEl.style.display='none';}
+
+  window._sel=[];
+  document.getElementById('qc').innerHTML=
+    `<div class="q-meta">${TH[q.theme]||q.theme} / 問題 ${pos+1}</div>
+     <div class="q-text">${q.text}</div>
+     ${isM?`<div class="hint">${cnt}つ選択してください</div>`:''}
+     <div class="choices">${q.choices.map(c=>
+       `<div class="choice" data-key="${c.key}" onclick="pick('${c.key}')">
+          <span class="ck">${c.key}</span><span class="ct">${c.text}</span>
+        </div>`).join('')}
+     </div>
+     <div class="btn-row">
+       <button class="btn-p" id="sbtn" onclick="answer()" disabled>回答する</button>
+     </div>
+     <div id="expl"></div>`;
+  updateHUD();
+}
+
+function pick(key){
+  const q=queue[pos].q; const isM=q.type==="multi"; const cnt=q.count||1;
+  if(isM){
+    window._sel=window._sel.includes(key)
+      ? window._sel.filter(k=>k!==key)
+      : (window._sel.length<cnt ? [...window._sel,key] : window._sel);
+  } else { window._sel=[key]; }
+  document.querySelectorAll('.choice').forEach(el=>{
+    el.classList.toggle('selected', window._sel.includes(el.dataset.key));
+  });
+  const sbtn=document.getElementById('sbtn');
+  if(sbtn) sbtn.disabled=window._sel.length!==(isM?cnt:1);
+}
+
+function answer(){
+  const it=queue[pos]; const q=it.q;
+  const sel=window._sel; const ok=q.correct;
+  const isOk=sel.length===ok.length&&sel.every(k=>ok.includes(k));
+
+  // 永続データ更新
+  const done     = getDone();
+  const wrongMap = getWrong();
+  const stats    = getStats();
+  if(!stats.theme) stats.theme={};
+  if(!stats.theme[q.theme]) stats.theme[q.theme]={correct:0,total:0};
+
+  if(isOk){
+    sesScore++;
+    stats.correct++;
+    done.add(q.id);
+    if(it.isRv) delete wrongMap[String(q.id)];
+  } else {
+    sesWrong++;
+    stats.wrong++;
+    // 不正解: 30問後に復習
+    wrongMap[String(q.id)] = { target: stats.total + RV_AFTER };
+  }
+  stats.total++;
+  stats.theme[q.theme].total++;
+  if(isOk) stats.theme[q.theme].correct++;
+
+  lsSet('saa_done',  [...done]);
+  lsSet('saa_wrong', wrongMap);
+  lsSet('saa_stats', stats);
+
+  // ハイライト
+  document.querySelectorAll('.choice').forEach(el=>{
+    el.classList.add('disabled');
+    const k=el.dataset.key;
+    if(ok.includes(k)&&sel.includes(k))   el.classList.add('correct');
+    else if(ok.includes(k))               el.classList.add('missed');
+    else if(sel.includes(k))              el.classList.add('wrong');
+  });
+
+  // 不正解理由: 選んだ不正解 + 選ばなかった正解 を全件表示
+  let wHTML='';
+  if(!isOk && q.wrong_reasons){
+    const targets=[...sel.filter(k=>!ok.includes(k)), ...ok.filter(k=>!sel.includes(k))];
+    const items=targets.filter(k=>q.wrong_reasons[k])
+      .map(k=>`<div class="wi"><div class="wi-k">${k} が不正解の理由</div>
+               <div class="wi-t">${q.wrong_reasons[k]}</div></div>`).join('');
+    if(items) wHTML=`<div class="esec"><div class="esec-ttl">不正解の解説</div>
+                     <div class="wi-list">${items}</div></div>`;
+  }
+  const rvNote=!isOk&&!it.isRv
+    ?`<div class="rv-note">この問題は${RV_AFTER}問後に復習問題として再出題されます。</div>`:'';
+
+  document.getElementById('expl').innerHTML=
+    `<div class="expl">
+       <div class="expl-head ${isOk?'expl-ok':'expl-ng'}">
+         ${isOk?'正解！':'不正解 — 正解: '+ok.join('・')}
+       </div>
+       <div class="expl-body">
+         <div class="esec">
+           <div class="esec-ttl">解説</div>
+           <div class="esec-txt">${q.explanation}</div>
+         </div>
+         ${wHTML}
+       </div>
+     </div>${rvNote}`;
+
+  const sbtn=document.getElementById('sbtn');
+  sbtn.textContent=pos+1<queue.length?'次の問題へ →':'結果を見る →';
+  sbtn.disabled=false;
+  sbtn.onclick=nextQ;
+  updateHUD();
+  document.getElementById('expl').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function nextQ(){ pos++; renderQ(); }
+
+// ── セッション結果 ──
+function showResult(){
+  document.getElementById('notify').style.display='none';
+  document.getElementById('progress').style.width='100%';
+  document.getElementById('type-badge').textContent='完了';
+  document.getElementById('diff-badge').style.display='none';
+
+  const stats=getStats();
+  const wrongMap=getWrong();
+  const done=getDone();
+  const unseen=getUnseen()||[];
+
+  const d=sesScore+sesWrong;
+  const pct=d>0?Math.round(sesScore/d*100):0;
+  const allPct=stats.total>0?Math.round(stats.correct/stats.total*100):0;
+  const grade=pct>=80?'合格圏内！':pct>=60?'もう少し頑張りましょう':'重点的な復習が必要です';
+
+  document.getElementById('s-ok').textContent=sesScore;
+  document.getElementById('s-ng').textContent=sesWrong;
+  document.getElementById('s-rate').textContent=d>0?pct+'%':'-';
+  document.getElementById('s-rv').textContent=Object.keys(wrongMap).length;
+  document.getElementById('q-counter').textContent=d+' / '+d;
+
+  const thRows=Object.entries(stats.theme||{}).map(([t,s])=>{
+    const r=Math.round(s.correct/s.total*100);
+    const col=r>=80?'#639922':r>=50?'#BA7517':'#E24B4A';
+    return `<div class="ti">
+      <div class="ti-name">${TH[t]||t}</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+        <div class="ti-bg" style="flex:1">
+          <div class="ti-fill" style="background:${col};width:${r}%"></div>
+        </div>
+        <span style="font-size:11px;color:#6b7280;min-width:28px">${r}%</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('qc').innerHTML=
+    `<div class="sc">
+       <div style="font-size:14px;color:#6b7280">このセッション</div>
+       <div class="sc-num">${pct}%</div>
+       <div class="sc-lbl">${grade}</div>
+       <div class="sc-grid">
+         <div class="si"><div class="si-n" style="color:#059669">${sesScore}</div><div class="si-l">正解</div></div>
+         <div class="si"><div class="si-n" style="color:#dc2626">${sesWrong}</div><div class="si-l">不正解</div></div>
+         <div class="si"><div class="si-n">${pct}%</div><div class="si-l">正答率</div></div>
+       </div>
+       <div style="font-size:12px;font-weight:500;color:#6b7280;margin-bottom:8px">累計成績（全${stats.total}問）</div>
+       <div class="sc-grid" style="margin-bottom:1rem">
+         <div class="si"><div class="si-n" style="color:#059669">${stats.correct}</div><div class="si-l">累計正解</div></div>
+         <div class="si"><div class="si-n">${allPct}%</div><div class="si-l">累計正答率</div></div>
+         <div class="si"><div class="si-n" style="color:#d97706">${Object.keys(wrongMap).length}</div><div class="si-l">復習待ち</div></div>
+       </div>
+       <div style="font-size:12px;color:#6b7280;margin-bottom:1.25rem">
+         正解済み ${done.size}問 / 残り未出題 ${unseen.length}問
+       </div>
+       ${thRows?`<div style="font-size:12px;font-weight:500;color:#6b7280;margin-bottom:8px">テーマ別累計正答率</div>
+         <div class="tgrid">${thRows}</div>`:''}
+       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+         <button class="btn-p" onclick="buildSession()">次の20問へ →</button>
+         <button onclick="resetAll()" style="font-size:12px;color:#dc2626;border-color:#fca5a5">記録をリセット</button>
+       </div>
+     </div>`;
+}
+
+function resetAll(){
+  if(!confirm('すべての記録をリセットしますか？')) return;
+  ['saa_done','saa_wrong','saa_stats','saa_unseen'].forEach(k=>localStorage.removeItem(k));
+  buildSession();
+}
+
+// 起動
+buildSession();
+</script>
+</body>
+</html>
