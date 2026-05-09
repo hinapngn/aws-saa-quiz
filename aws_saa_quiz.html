@@ -107,7 +107,7 @@ button:disabled{opacity:.4;cursor:default}
   <div class="stats-row">
     <div class="stat"><div class="stat-n" id="s-ok" style="color:#059669">0</div><div class="stat-l">正解</div></div>
     <div class="stat"><div class="stat-n" id="s-ng" style="color:#dc2626">0</div><div class="stat-l">不正解</div></div>
-    <div class="stat"><div class="stat-n" id="s-rate">-</div><div class="stat-l">正答率</div></div>
+    <div class="stat"><div class="stat-n" id="s-done" style="color:#3b82f6">0/200</div><div class="stat-l">完了済み</div></div>
     <div class="stat"><div class="stat-n" id="s-rv" style="color:#d97706">0</div><div class="stat-l">復習待ち</div></div>
   </div>
   <div id="notify" style="display:none"></div>
@@ -231,10 +231,10 @@ function buildSession(){
 // ── HUD ──
 function updateHUD(){
   const wrongMap = getWrong();
+  const done = getDone();
   document.getElementById('s-ok').textContent   = sesScore;
   document.getElementById('s-ng').textContent   = sesWrong;
-  const d = sesScore+sesWrong;
-  document.getElementById('s-rate').textContent = d>0?Math.round(sesScore/d*100)+'%':'-';
+  document.getElementById('s-done').textContent = done.size+'/'+ALL_Q.length;
   document.getElementById('s-rv').textContent   = Object.keys(wrongMap).length;
   document.getElementById('q-counter').textContent = (pos+1)+' / '+queue.length;
   document.getElementById('progress').style.width  =
@@ -340,12 +340,16 @@ function answer(){
                      <div class="wi-list">${items}</div></div>`;
   }
   const rvNote=!isOk&&!it.isRv
-    ?`<div class="rv-note">この問題は${RV_AFTER}問後に復習問題として再出題されます。</div>`:'';
+    ?`<div class="rv-note">この問題はあと${RV_AFTER}問で復習問題として再出題されます。</div>`:'';
+
+  let okMsg='正解！';
+  if(isOk && it.isRv) okMsg='復習クリア！ マスター済みになりました ✓';
+  else if(isOk)       okMsg='正解！ この問題は以後出題されません ✓';
 
   document.getElementById('expl').innerHTML=
     `<div class="expl">
        <div class="expl-head ${isOk?'expl-ok':'expl-ng'}">
-         ${isOk?'正解！':'不正解 — 正解: '+ok.join('・')}
+         ${isOk?okMsg:'不正解 — 正解: '+ok.join('・')}
        </div>
        <div class="expl-body">
          <div class="esec">
