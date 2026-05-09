@@ -57,6 +57,12 @@ button:disabled{opacity:.4;cursor:default}
 .wi{padding:8px 10px;border-radius:8px;background:#f9fafb;border:0.5px solid #e5e7eb}
 .wi-k{font-size:11px;font-weight:500;color:#dc2626;margin-bottom:2px}
 .wi-t{font-size:12px;line-height:1.5}
+.wi-selected{padding:8px 10px;border-radius:8px;background:#fef2f2;border:0.5px solid #fca5a5}
+.wi-selected .wi-k{font-size:11px;font-weight:500;color:#dc2626;margin-bottom:2px}
+.wi-selected .wi-t{font-size:12px;line-height:1.5}
+.wi-other{padding:8px 10px;border-radius:8px;background:#f9fafb;border:0.5px solid #e5e7eb}
+.wi-other .wi-k{font-size:11px;font-weight:500;color:#6b7280;margin-bottom:2px}
+.wi-other .wi-t{font-size:12px;line-height:1.5;color:#4b5563}
 .rv-note{font-size:12px;color:#d97706;margin-top:8px;padding:6px 10px;border-radius:8px;background:#fffbeb}
 .sc{text-align:center;padding:1.5rem 0.5rem}
 .sc-num{font-size:48px;font-weight:500;margin:.75rem 0 .5rem}
@@ -329,18 +335,24 @@ function answer(){
     else if(sel.includes(k))              el.classList.add('wrong');
   });
 
-  // 不正解理由: 選んだ不正解 + 選ばなかった正解 を全件表示
+  // 不正解理由: 選択した不正解 / その他の不正解 を2セクションで表示
   let wHTML='';
   if(!isOk && q.wrong_reasons){
-    const targets=[...sel.filter(k=>!ok.includes(k)), ...ok.filter(k=>!sel.includes(k))];
-    const items=targets.filter(k=>q.wrong_reasons[k])
-      .map(k=>`<div class="wi"><div class="wi-k">${k} が不正解の理由</div>
+    const selectedWrong = sel.filter(k=>!ok.includes(k));
+    const otherWrong = q.choices.map(c=>c.key).filter(k=>!ok.includes(k)&&!sel.includes(k));
+    const sec1 = selectedWrong.filter(k=>q.wrong_reasons[k])
+      .map(k=>`<div class="wi-selected"><div class="wi-k">${k} — 選択した不正解</div>
                <div class="wi-t">${q.wrong_reasons[k]}</div></div>`).join('');
-    if(items) wHTML=`<div class="esec"><div class="esec-ttl">不正解の解説</div>
-                     <div class="wi-list">${items}</div></div>`;
+    const sec2 = otherWrong.filter(k=>q.wrong_reasons[k])
+      .map(k=>`<div class="wi-other"><div class="wi-k">${k} — 不正解</div>
+               <div class="wi-t">${q.wrong_reasons[k]}</div></div>`).join('');
+    if(sec1) wHTML+=`<div class="esec"><div class="esec-ttl">選択した選択肢の解説</div>
+                     <div class="wi-list">${sec1}</div></div>`;
+    if(sec2) wHTML+=`<div class="esec"><div class="esec-ttl">その他の選択肢の解説</div>
+                     <div class="wi-list">${sec2}</div></div>`;
   }
   const rvNote=!isOk&&!it.isRv
-    ?`<div class="rv-note">この問題はあと${RV_AFTER}問で復習問題として再出題されます。</div>`:'';
+    ?`<div class="rv-note">この問題は復習問題として再出題されます。</div>`:'';
 
   let okMsg='正解！';
   if(isOk && it.isRv) okMsg='復習クリア！ マスター済みになりました ✓';
