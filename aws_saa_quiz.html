@@ -401,7 +401,7 @@ function showResult(){
 
   document.getElementById('s-ok').textContent=sesScore;
   document.getElementById('s-ng').textContent=sesWrong;
-  document.getElementById('s-rate').textContent=d>0?pct+'%':'-';
+  document.getElementById('s-done').textContent=done.size+'/'+ALL_Q.length;
   document.getElementById('s-rv').textContent=Object.keys(wrongMap).length;
   document.getElementById('q-counter').textContent=d+' / '+d;
 
