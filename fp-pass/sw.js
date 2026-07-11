@@ -26,6 +26,21 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
+// 学習リマインダー(Periodic Background Sync 対応環境のみ)
+self.addEventListener('periodicsync', e => {
+  if (e.tag === 'fpp-reminder') {
+    e.waitUntil(self.registration.showNotification('FPパス', {
+      body: '今日の20問に挑戦しましょう。継続が合格への最短ルートです。',
+      icon: './icons/icon-192.png',
+      tag: 'fpp-reminder'
+    }));
+  }
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.openWindow('./index.html'));
+});
+
 self.addEventListener('fetch', e => {
   const path = new URL(e.request.url).pathname;
   const isNetworkFirst = NETWORK_FIRST.some(p => path.endsWith(p));

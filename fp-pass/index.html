@@ -111,6 +111,12 @@ button:disabled{opacity:.4;cursor:default}
 .pill{font-size:11px;font-weight:600;padding:2px 10px;border-radius:99px}
 .pill.pass{background:#f0fdf4;color:#059669}
 .pill.fail{background:#fef2f2;color:#dc2626}
+.pill.mid{background:#fffbeb;color:#d97706}
+.pred{border:0.5px solid #e5e7eb;border-radius:12px;background:#fff;padding:13px 16px;margin-bottom:1.25rem}
+.pred-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px}
+.pred-top b{font-size:19px;color:#4f46e5}
+.pred-note{font-size:11px;color:#9ca3af;margin-top:5px;line-height:1.6}
+.streak{font-size:12px;color:#d97706;font-weight:600}
 @media(max-width:480px){
   body{padding:.75rem}
   .stats-row{grid-template-columns:repeat(2,1fr)}
@@ -144,6 +150,15 @@ button:disabled{opacity:.4;cursor:default}
   <div id="qc"></div>
 </div>
 <script>
+const GA_ID=''; // GA4計測ID(例: 'G-XXXXXXXXXX')を設定すると計測が有効になる
+if(GA_ID){
+  const s=document.createElement('script');s.async=true;
+  s.src='https://www.googletagmanager.com/gtag/js?id='+GA_ID;
+  document.head.appendChild(s);
+  window.dataLayer=window.dataLayer||[];
+  window.gtag=function(){dataLayer.push(arguments);};
+  gtag('js',new Date());gtag('config',GA_ID);
+}
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
@@ -177,6 +192,58 @@ function shuffle(a){
 }
 function esc(s){return String(s);}
 
+// ── 合格予測: 分野別累計正答率から本試験(各分野10問想定)の期待得点を推定 ──
+function predictScore(){
+  const stats=getStats(); const th=stats.theme||{};
+  let exp=0, covered=0, weakest=null, weakAcc=1;
+  for(const k of Object.keys(TH)){
+    const s=th[k];
+    if(s&&s.total>=5){
+      const acc=s.correct/s.total;
+      exp+=acc*10; covered++;
+      if(acc<weakAcc){weakAcc=acc;weakest=k;}
+    } else exp+=5; // データ不足の分野は正答率50%と仮定
+  }
+  const score=Math.round(exp);
+  return {score, covered, weakest,
+    reliable:covered>=4&&stats.total>=60,
+    label:score>=42?'合格圏':score>=EXAM_PASS?'ボーダー':'要強化',
+    cls:score>=42?'pass':score>=EXAM_PASS?'mid':'fail'};
+}
+
+// ── 連続学習日数 ──
+function bumpStreak(){
+  const today=new Date().toDateString();
+  const last=lsGet('fpp_lastday');
+  if(last===today) return;
+  const yest=new Date(Date.now()-864e5).toDateString();
+  const st=(last===yest)?(lsGet('fpp_streak')||0)+1:1;
+  lsSet('fpp_streak',st); lsSet('fpp_lastday',today);
+}
+function streakDays(){
+  const last=lsGet('fpp_lastday');
+  if(!last) return 0;
+  const today=new Date().toDateString();
+  const yest=new Date(Date.now()-864e5).toDateString();
+  return (last===today||last===yest)?(lsGet('fpp_streak')||0):0;
+}
+
+// ── 学習リマインダー(対応ブラウザのみ。非対応環境では設定不可の旨を表示) ──
+async function setupReminder(){
+  if(!('Notification' in window)){alert('この端末・ブラウザは通知に対応していません。');return;}
+  const perm=await Notification.requestPermission();
+  if(perm!=='granted'){alert('通知が許可されませんでした。端末の設定から許可できます。');return;}
+  lsSet('fpp_remind',true);
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    if('periodicSync' in reg){
+      await reg.periodicSync.register('fpp-reminder',{minInterval:20*60*60*1000});
+    }
+  }catch{}
+  alert('学習リマインダーを設定しました。\n※ホーム画面に追加(インストール)したアプリでのみ届く場合があります。');
+  goHome();
+}
+
 // ── 画面状態 ──
 let view='home';
 let queue=[], pos=0, sesScore=0, sesWrong=0;
@@ -200,6 +267,8 @@ function goHome(){
   const done=getDone(), wrongMap=getWrong(), stats=getStats(), exams=getExams();
   const allPct=stats.total>0?Math.round(stats.correct/stats.total*100):0;
   const last=exams[0];
+  const pred=predictScore();
+  const st=streakDays();
   setBadge('FP3級 学科'); setDiff(null); setCounter('');
   setHUD('');
   document.getElementById('qc').innerHTML=
@@ -207,6 +276,15 @@ function goHome(){
        <div class="stat"><div class="stat-n" style="color:#4f46e5">${done.size}/${ALL_Q.length}</div><div class="stat-l">マスター済み</div></div>
        <div class="stat"><div class="stat-n">${allPct}%</div><div class="stat-l">累計正答率</div></div>
        <div class="stat"><div class="stat-n" style="color:#d97706">${Object.keys(wrongMap).length}</div><div class="stat-l">復習待ち</div></div>
+     </div>
+     <div class="pred">
+       <div class="pred-top">
+         <span>合格予測 <b>${pred.score}</b><span style="color:#9ca3af">/60点</span>　<span class="pill ${pred.cls}">${pred.label}</span></span>
+         ${st>0?`<span class="streak">🔥 ${st}日連続学習中</span>`:''}
+       </div>
+       <div class="pred-note">${pred.reliable
+         ?`分野別の累計正答率に基づく推定です。${pred.weakest?`弱点分野: ${TH[pred.weakest]}(${Math.round((stats.theme[pred.weakest].correct/stats.theme[pred.weakest].total)*100)}%)`:''}`
+         :'演習データが少ないため参考値です。全分野で演習すると精度が上がります。'}</div>
      </div>
      <div class="home-cards">
        <button class="hcard" onclick="startStudy()">
@@ -223,6 +301,11 @@ function goHome(){
          <span class="ic">📊</span>
          <span><span class="hc-t">成績・模試履歴</span><br>
          <span class="hc-d">分野別正答率と模試の受験履歴</span></span>
+       </button>
+       <button class="hcard" onclick="setupReminder()">
+         <span class="ic">🔔</span>
+         <span><span class="hc-t">学習リマインダー${lsGet('fpp_remind')?'（設定済み）':''}</span><br>
+         <span class="hc-d">毎日の学習を通知でお知らせ（対応端末のみ）</span></span>
        </button>
      </div>
      <div class="disclaimer">
@@ -374,6 +457,7 @@ function answer(){
   stats.theme[q.theme].total++;
   if(isOk) stats.theme[q.theme].correct++;
   lsSet('fpp_done',[...done]); lsSet('fpp_wrong',wrongMap); lsSet('fpp_stats',stats);
+  bumpStreak();
 
   document.querySelectorAll('.choice').forEach(el=>{
     el.classList.add('disabled');
@@ -470,7 +554,7 @@ function showSessionResult(){
 }
 function resetAll(){
   if(!confirm('学習記録・模試履歴をすべてリセットしますか？')) return;
-  ['fpp_done','fpp_wrong','fpp_stats','fpp_unseen','fpp_exams'].forEach(k=>localStorage.removeItem(k));
+  ['fpp_done','fpp_wrong','fpp_stats','fpp_unseen','fpp_exams','fpp_streak','fpp_lastday'].forEach(k=>localStorage.removeItem(k));
   queue=[]; pos=0;
   goHome();
 }
@@ -565,6 +649,7 @@ function finishExam(timeUp){
   });
   res.pass=res.score>=EXAM_PASS;
   lsSet('fpp_wrong',wrongMap);
+  bumpStreak();
   const exams=getExams();
   exams.unshift({date:res.date,score:res.score,pass:res.pass,ox:res.ox,three:res.three});
   lsSet('fpp_exams',exams.slice(0,50));
@@ -623,6 +708,7 @@ function showStats(){
   setBadge('成績・履歴'); setDiff(null); setCounter('');
   setHUD('');
   const rows=themeRows(stats.theme);
+  const pred=predictScore();
   const hist=exams.length>0
     ?`<div class="hist">${exams.map(e=>{
         const d=new Date(e.date);
@@ -635,7 +721,13 @@ function showStats(){
       </div>`
     :'<div style="font-size:13px;color:#6b7280;margin-bottom:1rem">まだ模試の受験履歴がありません。</div>';
   document.getElementById('qc').innerHTML=
-    `<div class="sc" style="padding-top:.5rem;padding-bottom:.5rem">
+    `<div class="pred">
+       <div class="pred-top">
+         <span>合格予測 <b>${pred.score}</b><span style="color:#9ca3af">/60点</span>　<span class="pill ${pred.cls}">${pred.label}</span></span>
+       </div>
+       <div class="pred-note">${pred.reliable?'分野別の累計正答率に基づく推定です。':'演習データが少ないため参考値です。'}</div>
+     </div>
+     <div class="sc" style="padding-top:.5rem;padding-bottom:.5rem">
        <div class="sc-grid" style="margin-bottom:1rem">
          <div class="si"><div class="si-n" style="color:#4f46e5">${done.size}/${ALL_Q.length}</div><div class="si-l">マスター済み</div></div>
          <div class="si"><div class="si-n">${allPct}%</div><div class="si-l">累計正答率</div></div>
