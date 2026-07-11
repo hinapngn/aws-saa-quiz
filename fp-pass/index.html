@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FPパス — FP3級 学科対策</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4f46e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="FPパス">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f8fb;color:#1a1a2e;padding:1.5rem;touch-action:manipulation}
+.qw{max-width:680px;margin:0 auto}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem}
+.hdr-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ttl{font-size:15px;font-weight:600;color:#4f46e5;cursor:pointer}
+.badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:6px;background:#eef2ff;color:#4f46e5}
+.badge-warn{background:#fef3c7;color:#92400e}
+.badge-diff{font-size:11px;font-weight:500;padding:3px 9px;border-radius:6px}
+.diff-easy{background:#EAF3DE;color:#3B6D11}.diff-mid{background:#FAEEDA;color:#854F0B}.diff-hard{background:#FCEBEB;color:#A32D2D}
+.law-note{font-size:11px;color:#9ca3af;margin-bottom:.85rem}
+.mode-row{display:flex;align-items:center;gap:8px;margin-bottom:.85rem}
+.mode-row label{font-size:12px;color:#6b7280}
+.mode-row select{font-size:13px;padding:6px 10px;border:0.5px solid #e5e7eb;border-radius:8px;background:#fff;color:#1a1a2e}
+.pbar{height:3px;background:#e5e7eb;border-radius:2px;margin-bottom:1.25rem}
+.pfill{height:100%;background:#4f46e5;border-radius:2px;transition:width .3s}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.stat{background:#f1f1f7;border-radius:8px;padding:8px 10px;text-align:center}
+.stat-n{font-size:17px;font-weight:500}.stat-l{font-size:10px;color:#6b7280;margin-top:2px}
+.rv-banner{font-size:12px;margin-bottom:1rem;padding:8px 12px;border-radius:8px;border:0.5px solid #fca5a5;background:#fef2f2;color:#dc2626}
+.q-meta{font-size:12px;color:#9ca3af;margin-bottom:.5rem}
+.q-text{font-size:15px;font-weight:500;line-height:1.65;margin-bottom:1.1rem}
+.hint{font-size:12px;color:#6b7280;margin-bottom:.75rem}
+.choices{display:flex;flex-direction:column;gap:8px;margin-bottom:1.1rem}
+.choice{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:0.5px solid #e5e7eb;border-radius:10px;cursor:pointer;transition:all .15s;background:#fff}
+.choice:hover:not(.disabled){border-color:#d1d5db;background:#fafafe}
+.choice.selected{border-color:#a5b4fc;background:#eef2ff}
+.choice.correct{border-color:#6ee7b7;background:#f0fdf4}
+.choice.wrong{border-color:#fca5a5;background:#fef2f2}
+.choice.disabled{cursor:default}
+.ck{font-size:13px;font-weight:500;min-width:20px;color:#9ca3af;padding-top:1px}
+.choice.selected .ck{color:#4f46e5}.choice.correct .ck{color:#059669}.choice.wrong .ck{color:#dc2626}
+.ct{font-size:13px;line-height:1.55}
+.btn-row{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+button{cursor:pointer;border-radius:8px;font-size:13px;font-weight:500;padding:7px 18px;border:0.5px solid #e5e7eb;background:transparent;transition:all .15s;color:inherit}
+button:hover:not(:disabled){background:#f1f1f7}
+button:disabled{opacity:.4;cursor:default}
+.btn-p{background:#4f46e5;color:#fff;border-color:#4f46e5}
+.btn-p:hover:not(:disabled){opacity:.88;background:#4f46e5}
+.expl{margin-top:1rem;border-radius:10px;overflow:hidden;border:0.5px solid #e5e7eb}
+.expl-head{padding:10px 14px;font-size:13px;font-weight:500}
+.expl-ok{background:#f0fdf4;color:#059669;border-bottom:0.5px solid #6ee7b7}
+.expl-ng{background:#fef2f2;color:#dc2626;border-bottom:0.5px solid #fca5a5}
+.expl-body{padding:12px 14px;background:#fff}
+.esec{margin-bottom:10px}.esec:last-child{margin-bottom:0}
+.esec-ttl{font-size:11px;font-weight:500;color:#6b7280;margin-bottom:4px;letter-spacing:.04em}
+.esec-txt{font-size:13px;line-height:1.6}
+.wi-list{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.wi-selected{padding:8px 10px;border-radius:8px;background:#fef2f2;border:0.5px solid #fca5a5}
+.wi-selected .wi-k{font-size:11px;font-weight:500;color:#dc2626;margin-bottom:2px}
+.wi-selected .wi-t{font-size:12px;line-height:1.5}
+.wi-other{padding:8px 10px;border-radius:8px;background:#fafafa;border:0.5px solid #e5e7eb}
+.wi-other .wi-k{font-size:11px;font-weight:500;color:#6b7280;margin-bottom:2px}
+.wi-other .wi-t{font-size:12px;line-height:1.5;color:#4b5563}
+.rv-note{font-size:12px;color:#d97706;margin-top:8px;padding:6px 10px;border-radius:8px;background:#fffbeb}
+.sc{text-align:center;padding:1.5rem 0.5rem}
+.sc-num{font-size:48px;font-weight:500;margin:.75rem 0 .5rem}
+.sc-lbl{font-size:14px;color:#6b7280;margin-bottom:1.25rem}
+.sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:360px;margin:0 auto 1rem}
+.si{padding:10px;border-radius:8px;background:#f1f1f7}
+.si-n{font-size:20px;font-weight:500}.si-l{font-size:11px;color:#6b7280;margin-top:2px}
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:400px;margin:0 auto 1.25rem;text-align:left}
+.ti{padding:8px 10px;border-radius:8px;border:0.5px solid #e5e7eb;background:#fff}
+.ti-name{font-size:12px;font-weight:500}
+.ti-bg{height:3px;border-radius:2px;background:#e5e7eb;margin-top:5px;overflow:hidden}
+.ti-fill{height:100%;border-radius:2px}
+/* ── ホーム ── */
+.home-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:1.25rem}
+.hcard{display:flex;align-items:center;gap:14px;padding:16px;border:0.5px solid #e5e7eb;border-radius:12px;background:#fff;cursor:pointer;transition:all .15s;text-align:left;width:100%}
+.hcard:hover{border-color:#a5b4fc;background:#fafafe}
+.hcard .ic{font-size:26px;min-width:38px;text-align:center}
+.hcard .hc-t{font-size:15px;font-weight:600;margin-bottom:2px}
+.hcard .hc-d{font-size:12px;color:#6b7280;line-height:1.5}
+.home-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
+.disclaimer{font-size:10.5px;color:#9ca3af;line-height:1.7;margin-top:1.5rem;padding-top:1rem;border-top:0.5px solid #e5e7eb}
+/* ── 模試 ── */
+.ex-hud{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:1rem;padding:10px 14px;border-radius:10px;background:#1e1b4b;color:#fff}
+.ex-hud .tm{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.ex-hud .tm.warn{color:#fca5a5}
+.ex-hud .st{font-size:12px;color:#c7d2fe}
+.ex-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.ex-dot{width:26px;height:26px;border-radius:6px;border:0.5px solid #e5e7eb;background:#fff;font-size:10.5px;color:#9ca3af;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.ex-dot.answered{background:#eef2ff;border-color:#a5b4fc;color:#4f46e5;font-weight:600}
+.ex-dot.cur{border-color:#4f46e5;box-shadow:0 0 0 1.5px #4f46e5}
+.exr-item{border:0.5px solid #e5e7eb;border-radius:10px;background:#fff;margin-bottom:10px;overflow:hidden}
+.exr-head{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;cursor:pointer}
+.exr-mark{font-size:14px;font-weight:700;min-width:22px}
+.exr-mark.ok{color:#059669}.exr-mark.ng{color:#dc2626}
+.exr-q{font-size:13px;line-height:1.6}
+.exr-meta{font-size:11px;color:#9ca3af;margin-top:3px}
+.exr-body{display:none;padding:0 14px 12px 46px;font-size:13px;line-height:1.65;color:#374151}
+.exr-item.open .exr-body{display:block}
+.exr-body .ans{font-size:12px;margin-bottom:6px}
+.exr-body .ans b{color:#059669}
+.exr-body .ans .my-ng{color:#dc2626}
+.hist{border:0.5px solid #e5e7eb;border-radius:10px;background:#fff;overflow:hidden;margin-bottom:1rem}
+.hist-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;border-bottom:0.5px solid #f1f1f7;font-size:13px}
+.hist-row:last-child{border-bottom:none}
+.hist-date{color:#6b7280;font-size:12px}
+.pill{font-size:11px;font-weight:600;padding:2px 10px;border-radius:99px}
+.pill.pass{background:#f0fdf4;color:#059669}
+.pill.fail{background:#fef2f2;color:#dc2626}
+@media(max-width:480px){
+  body{padding:.75rem}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .choice{padding:14px 12px}
+  button{padding:12px 16px;font-size:14px}
+  .btn-row button{flex:1}
+  .q-text{font-size:15px}
+  .ct{font-size:14px}
+  .sc-grid{grid-template-columns:repeat(2,1fr)}
+  .sc-num{font-size:36px}
+  .tgrid{grid-template-columns:1fr}
+  .ex-dot{width:24px;height:24px}
+}
+@media(hover:none){
+  .choice:hover:not(.disabled){border-color:#e5e7eb;background:#fff}
+}
+</style>
+</head>
+<body>
+<div class="qw">
+  <div class="hdr">
+    <div class="hdr-left">
+      <span class="ttl" onclick="goHome()">FPパス</span>
+      <span class="badge" id="mode-badge">FP3級 学科</span>
+      <span class="badge-diff" id="diff-badge" style="display:none"></span>
+    </div>
+    <span style="font-size:12px;color:#6b7280" id="q-counter"></span>
+  </div>
+  <div class="law-note">2025年度試験対応（法令基準日 2025年4月1日）</div>
+  <div id="hud"></div>
+  <div id="qc"></div>
+</div>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+</script>
+<script src="questions.js"></script>
+<script>
+const TH={life:"ライフプランニングと資金計画",risk:"リスク管理",finance:"金融資産運用",tax:"タックスプランニング",estate:"不動産",inherit:"相続・事業承継"};
+const DL={1:"易",2:"中",3:"難"};
+const DC={1:"diff-easy",2:"diff-mid",3:"diff-hard"};
+const PER_ROUND=20;
+const RV_AFTER=30;
+const EXAM_OX=30, EXAM_THREE=30, EXAM_MIN=90, EXAM_PASS=36;
+
+// ── localStorage (fpp_* — 個人用アプリとは独立) ──
+function lsGet(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch{return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+function getDone()   { return new Set(lsGet('fpp_done')  || []); }
+function getWrong()  { return lsGet('fpp_wrong') || {}; }
+function getStats()  { return lsGet('fpp_stats') || {total:0,correct:0,wrong:0,theme:{}}; }
+function getUnseen() { return lsGet('fpp_unseen'); }
+function getExams()  { return lsGet('fpp_exams') || []; }
+function byId(id)    { return ALL_Q.find(q=>String(q.id)===String(id)); }
+
+function shuffle(a){
+  const b=[...a];
+  for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}
+  return b;
+}
+function esc(s){return String(s);}
+
+// ── 画面状態 ──
+let view='home';
+let queue=[], pos=0, sesScore=0, sesWrong=0;
+let field=lsGet('fpp_field')||'all';
+let exam=null; // {qs:[...], ans:[...], pos, endAt, timerId}
+
+function setHUD(html){ document.getElementById('hud').innerHTML=html; }
+function setBadge(t,warn){ const b=document.getElementById('mode-badge'); b.textContent=t; b.className='badge'+(warn?' badge-warn':''); }
+function setDiff(q){ const d=document.getElementById('diff-badge');
+  if(q){ d.style.display=''; d.textContent=DL[q.diff]||''; d.className='badge-diff '+(DC[q.diff]||''); }
+  else d.style.display='none'; }
+function setCounter(t){ document.getElementById('q-counter').textContent=t||''; }
+
+// ════════════ ホーム ════════════
+function goHome(){
+  if(view==='exam' && exam){
+    if(!confirm('模試を中断しますか？中断した模試は記録されません。')) return;
+    stopExamTimer(); exam=null;
+  }
+  view='home';
+  const done=getDone(), wrongMap=getWrong(), stats=getStats(), exams=getExams();
+  const allPct=stats.total>0?Math.round(stats.correct/stats.total*100):0;
+  const last=exams[0];
+  setBadge('FP3級 学科'); setDiff(null); setCounter('');
+  setHUD('');
+  document.getElementById('qc').innerHTML=
+    `<div class="home-sum">
+       <div class="stat"><div class="stat-n" style="color:#4f46e5">${done.size}/${ALL_Q.length}</div><div class="stat-l">マスター済み</div></div>
+       <div class="stat"><div class="stat-n">${allPct}%</div><div class="stat-l">累計正答率</div></div>
+       <div class="stat"><div class="stat-n" style="color:#d97706">${Object.keys(wrongMap).length}</div><div class="stat-l">復習待ち</div></div>
+     </div>
+     <div class="home-cards">
+       <button class="hcard" onclick="startStudy()">
+         <span class="ic">📚</span>
+         <span><span class="hc-t">学習モード</span><br>
+         <span class="hc-d">20問ずつ演習。間違えた問題は最適なタイミングで自動再出題</span></span>
+       </button>
+       <button class="hcard" onclick="startExam()">
+         <span class="ic">⏱️</span>
+         <span><span class="hc-t">模試モード（本試験形式）</span><br>
+         <span class="hc-d">○×30問＋三択30問・${EXAM_MIN}分。合格基準 ${EXAM_PASS}/60点${last?` ／ 前回: ${last.score}点(${last.pass?'合格':'不合格'})`:''}</span></span>
+       </button>
+       <button class="hcard" onclick="showStats()">
+         <span class="ic">📊</span>
+         <span><span class="hc-t">成績・模試履歴</span><br>
+         <span class="hc-d">分野別正答率と模試の受験履歴</span></span>
+       </button>
+     </div>
+     <div class="disclaimer">
+       本アプリは特定非営利活動法人日本FP協会および一般社団法人金融財政事情研究会とは関係ありません。
+       収録問題はオリジナルの練習問題です（法令基準日: 2025年4月1日）。
+       本アプリの利用により合格を保証するものではありません。
+     </div>`;
+}
+
+// ════════════ 学習モード ════════════
+function studyHUD(){
+  setHUD(
+    `<div class="mode-row">
+      <label for="field-sel">出題分野:</label>
+      <select id="field-sel" onchange="changeField(this.value)">
+        <option value="all">全分野</option>
+        ${Object.entries(TH).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}
+      </select>
+    </div>
+    <div class="pbar"><div class="pfill" id="progress" style="width:0%"></div></div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-n" id="s-ok" style="color:#059669">0</div><div class="stat-l">正解</div></div>
+      <div class="stat"><div class="stat-n" id="s-ng" style="color:#dc2626">0</div><div class="stat-l">不正解</div></div>
+      <div class="stat"><div class="stat-n" id="s-done" style="color:#4f46e5">0/${ALL_Q.length}</div><div class="stat-l">マスター済み</div></div>
+      <div class="stat"><div class="stat-n" id="s-rv" style="color:#d97706">0</div><div class="stat-l">復習待ち</div></div>
+    </div>
+    <div id="notify" style="display:none"></div>`);
+  document.getElementById('field-sel').value=field;
+}
+function startStudy(){
+  view='study';
+  studyHUD();
+  if(queue.length>0 && pos<queue.length){ updateHUD(); renderQ(); }
+  else buildSession();
+}
+function changeField(v){
+  field=v; lsSet('fpp_field',v); buildSession();
+}
+function buildSession(){
+  sesScore=0; sesWrong=0; pos=0; queue=[];
+  const done=getDone(), wrongMap=getWrong(), stats=getStats();
+  let unseen=getUnseen()||[];
+  const knownIds=new Set([...[...done].map(String),...unseen.map(String),...Object.keys(wrongMap)]);
+  const brandNew=shuffle(ALL_Q.map(q=>q.id).filter(id=>!knownIds.has(String(id))));
+  if(brandNew.length>0){ unseen=[...unseen,...brandNew]; lsSet('fpp_unseen',unseen); }
+
+  const inField=id=>{const q=byId(id);return q&&(field==='all'||q.theme===field);};
+  const now=stats.total;
+  const rvIds=Object.keys(wrongMap).filter(id=>wrongMap[id].target<=now&&inField(id)).slice(0,10);
+  const rvItems=rvIds.map(id=>({q:byId(id),isRv:true}));
+
+  const newCount=PER_ROUND-rvItems.length;
+  const newItems=[]; const keep=[];
+  for(const id of unseen){
+    if(newItems.length<newCount&&inField(id)) newItems.push({q:byId(id),isRv:false});
+    else keep.push(id);
+  }
+  unseen=keep; lsSet('fpp_unseen',unseen);
+
+  const combined=shuffle([...newItems]);
+  rvItems.forEach((rv,i)=>{
+    const at=Math.min(i*4+Math.floor(Math.random()*4),combined.length);
+    combined.splice(at,0,rv);
+  });
+  queue=combined;
+
+  if(queue.length===0){
+    const fieldWrong=Object.keys(wrongMap).filter(inField).length;
+    const label=field==='all'?'全問題':'「'+TH[field]+'」の問題';
+    document.getElementById('qc').innerHTML=
+      '<div class="sc">'+
+        '<div class="sc-num" style="font-size:36px">🎉</div>'+
+        '<div style="font-size:15px;font-weight:500;margin-bottom:.5rem">'+label+'をすべて正解しました！</div>'+
+        '<div style="font-size:13px;color:#6b7280;margin-bottom:1.5rem">'+
+          (fieldWrong>0?'復習待ち '+fieldWrong+' 問があります。もう少しで出題されます。'
+           :(field!=='all'?'別の分野に切り替えて学習を続けましょう。':'模試モードで総仕上げをしましょう。'))+
+        '</div>'+
+        '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'+
+          '<button class="btn-p" onclick="goHome()">ホームへ</button>'+
+          '<button onclick="resetAll()" style="font-size:12px;color:#dc2626;border-color:#fca5a5">記録をリセット</button>'+
+        '</div>'+
+      '</div>';
+    updateHUD(); return;
+  }
+  updateHUD(); renderQ();
+}
+function updateHUD(){
+  if(view!=='study') return;
+  const wrongMap=getWrong(), done=getDone();
+  document.getElementById('s-ok').textContent=sesScore;
+  document.getElementById('s-ng').textContent=sesWrong;
+  document.getElementById('s-done').textContent=done.size+'/'+ALL_Q.length;
+  document.getElementById('s-rv').textContent=Object.keys(wrongMap).length;
+  setCounter(queue.length>0?(Math.min(pos+1,queue.length))+' / '+queue.length:'');
+  const p=document.getElementById('progress');
+  if(p) p.style.width=queue.length>0?Math.round(pos/queue.length*100)+'%':'0%';
+}
+function renderQ(){
+  if(pos>=queue.length){ showSessionResult(); return; }
+  const it=queue[pos]; const q=it.q;
+  const isOx=q.type==="ox";
+  setBadge(isOx?'○×式':'三答択一式',!isOx);
+  setDiff(q);
+  const nEl=document.getElementById('notify');
+  if(it.isRv){nEl.className='rv-banner';nEl.style.display='block';
+    nEl.textContent='復習問題 — 以前に間違えた問題です。もう一度挑戦しましょう。';}
+  else{nEl.style.display='none';}
+
+  window._sel=[];
+  document.getElementById('qc').innerHTML=
+    `<div class="q-meta">${TH[q.theme]||q.theme} / 問題 ${pos+1}</div>
+     <div class="q-text">${esc(q.text)}</div>
+     ${isOx?'<div class="hint">正しければ○、誤っていれば×を選択してください</div>':''}
+     <div class="choices">${q.choices.map(c=>
+       `<div class="choice" data-key="${c.key}" onclick="pick('${c.key}')">
+          <span class="ck">${c.key}</span><span class="ct">${esc(c.text)}</span>
+        </div>`).join('')}
+     </div>
+     <div class="btn-row">
+       <button class="btn-p" id="sbtn" onclick="answer()" disabled>回答する</button>
+     </div>
+     <div id="expl"></div>`;
+  updateHUD();
+}
+function pick(key){
+  window._sel=[key];
+  document.querySelectorAll('.choice').forEach(el=>{
+    el.classList.toggle('selected',window._sel.includes(el.dataset.key));
+  });
+  const sbtn=document.getElementById('sbtn');
+  if(sbtn) sbtn.disabled=window._sel.length!==1;
+}
+function answer(){
+  const it=queue[pos]; const q=it.q;
+  const sel=window._sel; const ok=q.correct;
+  const isOk=sel.length===ok.length&&sel.every(k=>ok.includes(k));
+
+  const done=getDone(), wrongMap=getWrong(), stats=getStats();
+  if(!stats.theme) stats.theme={};
+  if(!stats.theme[q.theme]) stats.theme[q.theme]={correct:0,total:0};
+  if(isOk){
+    sesScore++; stats.correct++; done.add(q.id);
+    if(it.isRv) delete wrongMap[String(q.id)];
+  } else {
+    sesWrong++; stats.wrong++;
+    wrongMap[String(q.id)]={target:stats.total+RV_AFTER};
+  }
+  stats.total++;
+  stats.theme[q.theme].total++;
+  if(isOk) stats.theme[q.theme].correct++;
+  lsSet('fpp_done',[...done]); lsSet('fpp_wrong',wrongMap); lsSet('fpp_stats',stats);
+
+  document.querySelectorAll('.choice').forEach(el=>{
+    el.classList.add('disabled');
+    const k=el.dataset.key;
+    if(ok.includes(k)) el.classList.add('correct');
+    else if(sel.includes(k)) el.classList.add('wrong');
+  });
+
+  let wHTML='';
+  if(!isOk&&q.wrong_reasons){
+    const selectedWrong=sel.filter(k=>!ok.includes(k));
+    const otherWrong=q.choices.map(c=>c.key).filter(k=>!ok.includes(k)&&!sel.includes(k));
+    const sec1=selectedWrong.filter(k=>q.wrong_reasons[k])
+      .map(k=>`<div class="wi-selected"><div class="wi-k">${k} — 選択した不正解</div>
+               <div class="wi-t">${esc(q.wrong_reasons[k])}</div></div>`).join('');
+    const sec2=otherWrong.filter(k=>q.wrong_reasons[k])
+      .map(k=>`<div class="wi-other"><div class="wi-k">${k} — 不正解</div>
+               <div class="wi-t">${esc(q.wrong_reasons[k])}</div></div>`).join('');
+    if(sec1) wHTML+=`<div class="esec"><div class="esec-ttl">選択した選択肢の解説</div><div class="wi-list">${sec1}</div></div>`;
+    if(sec2) wHTML+=`<div class="esec"><div class="esec-ttl">その他の選択肢の解説</div><div class="wi-list">${sec2}</div></div>`;
+  }
+  const rvNote=!isOk&&!it.isRv?`<div class="rv-note">この問題は復習問題として再出題されます。</div>`:'';
+  let okMsg='正解！';
+  if(isOk&&it.isRv) okMsg='復習クリア！ マスター済みになりました ✓';
+  else if(isOk) okMsg='正解！ この問題は以後出題されません ✓';
+
+  document.getElementById('expl').innerHTML=
+    `<div class="expl">
+       <div class="expl-head ${isOk?'expl-ok':'expl-ng'}">
+         ${isOk?okMsg:'不正解 — 正解: '+ok.join('・')}
+       </div>
+       <div class="expl-body">
+         <div class="esec"><div class="esec-ttl">解説</div><div class="esec-txt">${esc(q.explanation)}</div></div>
+         ${wHTML}
+       </div>
+     </div>${rvNote}`;
+
+  const sbtn=document.getElementById('sbtn');
+  sbtn.textContent=pos+1<queue.length?'次の問題へ →':'結果を見る →';
+  sbtn.disabled=false;
+  sbtn.onclick=nextQ;
+  updateHUD();
+  document.getElementById('expl').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function nextQ(){ pos++; renderQ(); }
+
+function themeRows(themeStats){
+  return Object.entries(themeStats||{}).map(([t,s])=>{
+    const r=Math.round(s.correct/s.total*100);
+    const col=r>=80?'#639922':r>=60?'#BA7517':'#E24B4A';
+    return `<div class="ti">
+      <div class="ti-name">${TH[t]||t}</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+        <div class="ti-bg" style="flex:1"><div class="ti-fill" style="background:${col};width:${r}%"></div></div>
+        <span style="font-size:11px;color:#6b7280;min-width:28px">${r}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function showSessionResult(){
+  const nEl=document.getElementById('notify'); if(nEl) nEl.style.display='none';
+  const p=document.getElementById('progress'); if(p) p.style.width='100%';
+  setBadge('セッション完了'); setDiff(null);
+
+  const stats=getStats(), wrongMap=getWrong(), done=getDone(), unseen=getUnseen()||[];
+  const d=sesScore+sesWrong;
+  const pct=d>0?Math.round(sesScore/d*100):0;
+  const allPct=stats.total>0?Math.round(stats.correct/stats.total*100):0;
+  const grade=pct>=80?'合格圏内！この調子です':pct>=60?'合格ライン(6割)到達。さらに固めましょう':'重点的な復習が必要です';
+  setCounter(d+' / '+d);
+  const sOk=document.getElementById('s-ok'); if(sOk) sOk.textContent=sesScore;
+  const sNg=document.getElementById('s-ng'); if(sNg) sNg.textContent=sesWrong;
+  const sDone=document.getElementById('s-done'); if(sDone) sDone.textContent=done.size+'/'+ALL_Q.length;
+  const sRv=document.getElementById('s-rv'); if(sRv) sRv.textContent=Object.keys(wrongMap).length;
+
+  document.getElementById('qc').innerHTML=
+    `<div class="sc">
+       <div style="font-size:14px;color:#6b7280">このセッション</div>
+       <div class="sc-num">${pct}%</div>
+       <div class="sc-lbl">${grade}</div>
+       <div class="sc-grid">
+         <div class="si"><div class="si-n" style="color:#059669">${sesScore}</div><div class="si-l">正解</div></div>
+         <div class="si"><div class="si-n" style="color:#dc2626">${sesWrong}</div><div class="si-l">不正解</div></div>
+         <div class="si"><div class="si-n">${pct}%</div><div class="si-l">正答率</div></div>
+       </div>
+       <div style="font-size:12px;color:#6b7280;margin-bottom:1.25rem">
+         累計正答率 ${allPct}%（全${stats.total}問） ／ マスター済み ${done.size}問 ／ 未出題 ${unseen.length}問
+       </div>
+       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+         <button class="btn-p" onclick="buildSession()">次の20問へ →</button>
+         <button onclick="goHome()">ホームへ</button>
+       </div>
+     </div>`;
+}
+function resetAll(){
+  if(!confirm('学習記録・模試履歴をすべてリセットしますか？')) return;
+  ['fpp_done','fpp_wrong','fpp_stats','fpp_unseen','fpp_exams'].forEach(k=>localStorage.removeItem(k));
+  queue=[]; pos=0;
+  goHome();
+}
+
+// ════════════ 模試モード ════════════
+function startExam(){
+  const oxAll=ALL_Q.filter(q=>q.type==='ox');
+  const thAll=ALL_Q.filter(q=>q.type==='three');
+  if(oxAll.length<EXAM_OX||thAll.length<EXAM_THREE){
+    alert('問題数が不足しています'); return;
+  }
+  const qs=[...shuffle(oxAll).slice(0,EXAM_OX),...shuffle(thAll).slice(0,EXAM_THREE)];
+  exam={qs, ans:new Array(qs.length).fill(null), pos:0,
+        endAt:Date.now()+EXAM_MIN*60*1000, timerId:null};
+  view='exam';
+  exam.timerId=setInterval(tickExam,1000);
+  renderExam();
+}
+function stopExamTimer(){ if(exam&&exam.timerId){clearInterval(exam.timerId);exam.timerId=null;} }
+function fmtRemain(){
+  const s=Math.max(0,Math.floor((exam.endAt-Date.now())/1000));
+  return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+}
+function tickExam(){
+  if(!exam) return;
+  const el=document.getElementById('ex-timer');
+  const remain=exam.endAt-Date.now();
+  if(el){ el.textContent=fmtRemain(); el.classList.toggle('warn',remain<10*60*1000); }
+  if(remain<=0){ finishExam(true); }
+}
+function renderExam(){
+  if(!exam) return;
+  const i=exam.pos, q=exam.qs[i];
+  const isOx=q.type==='ox';
+  const answered=exam.ans.filter(a=>a!==null).length;
+  setBadge(isOx?'○×式':'三答択一式',!isOx);
+  setDiff(null);
+  setCounter('問'+(i+1)+' / '+exam.qs.length);
+  setHUD(
+    `<div class="ex-hud">
+       <span class="st">模試モード（本試験形式）</span>
+       <span>回答済 <b>${answered}</b>/${exam.qs.length}　<span class="tm" id="ex-timer">${fmtRemain()}</span></span>
+     </div>
+     <div class="ex-nav">${exam.qs.map((_,j)=>
+       `<button class="ex-dot${exam.ans[j]!==null?' answered':''}${j===i?' cur':''}" onclick="jumpExam(${j})">${j+1}</button>`).join('')}
+     </div>`);
+  document.getElementById('qc').innerHTML=
+    `<div class="q-meta">${TH[q.theme]||q.theme}</div>
+     <div class="q-text">${esc(q.text)}</div>
+     ${isOx?'<div class="hint">正しければ○、誤っていれば×を選択してください</div>':''}
+     <div class="choices">${q.choices.map(c=>
+       `<div class="choice${exam.ans[i]===c.key?' selected':''}" data-key="${c.key}" onclick="pickExam('${c.key}')">
+          <span class="ck">${c.key}</span><span class="ct">${esc(c.text)}</span>
+        </div>`).join('')}
+     </div>
+     <div class="btn-row">
+       <button onclick="moveExam(-1)" ${i===0?'disabled':''}>← 前へ</button>
+       ${i<exam.qs.length-1
+         ?`<button class="btn-p" onclick="moveExam(1)">次へ →</button>`
+         :`<button class="btn-p" onclick="finishExam(false)">採点する</button>`}
+       ${i<exam.qs.length-1?`<button onclick="finishExam(false)" style="color:#6b7280">途中で採点する</button>`:''}
+     </div>`;
+}
+function pickExam(key){
+  exam.ans[exam.pos]=key;
+  renderExam();
+}
+function moveExam(d){ exam.pos=Math.max(0,Math.min(exam.qs.length-1,exam.pos+d)); renderExam(); }
+function jumpExam(j){ exam.pos=j; renderExam(); }
+function finishExam(timeUp){
+  if(!exam) return;
+  const unanswered=exam.ans.filter(a=>a===null).length;
+  if(!timeUp&&unanswered>0){
+    if(!confirm('未回答が'+unanswered+'問あります。採点しますか？')) return;
+  }
+  stopExamTimer();
+  const res={date:new Date().toISOString(),score:0,ox:0,three:0,pass:false,theme:{},
+             detail:[]};
+  const wrongMap=getWrong(); const stats=getStats();
+  exam.qs.forEach((q,i)=>{
+    const sel=exam.ans[i];
+    const ok=sel!==null&&q.correct.includes(sel);
+    if(ok){ res.score++; if(q.type==='ox')res.ox++; else res.three++; }
+    else {
+      // 模試の間違いは学習モードの復習キューに登録(次の学習セッションから出題)
+      wrongMap[String(q.id)]=wrongMap[String(q.id)]||{target:stats.total};
+    }
+    if(!res.theme[q.theme]) res.theme[q.theme]={correct:0,total:0};
+    res.theme[q.theme].total++;
+    if(ok) res.theme[q.theme].correct++;
+    res.detail.push({id:q.id,sel,ok});
+  });
+  res.pass=res.score>=EXAM_PASS;
+  lsSet('fpp_wrong',wrongMap);
+  const exams=getExams();
+  exams.unshift({date:res.date,score:res.score,pass:res.pass,ox:res.ox,three:res.three});
+  lsSet('fpp_exams',exams.slice(0,50));
+  const finished=exam; exam=null; view='exam-result';
+  renderExamResult(res,finished,timeUp);
+}
+function renderExamResult(res,fin,timeUp){
+  setBadge('模試結果'); setDiff(null); setCounter('');
+  setHUD('');
+  const wrongItems=fin.qs.map((q,i)=>({q,sel:fin.ans[i],ok:res.detail[i].ok,no:i+1}))
+    .filter(it=>!it.ok);
+  const reviewHTML=wrongItems.map(it=>{
+    const q=it.q;
+    return `<div class="exr-item" onclick="this.classList.toggle('open')">
+      <div class="exr-head">
+        <span class="exr-mark ng">✕</span>
+        <span><span class="exr-q">問${it.no}　${esc(q.text)}</span>
+        <span class="exr-meta">${TH[q.theme]} ／ ${q.type==='ox'?'○×式':'三答択一式'}</span></span>
+      </div>
+      <div class="exr-body">
+        <div class="ans">正解: <b>${q.correct.join('・')}</b>　あなたの回答: <span class="my-ng">${it.sel===null?'未回答':it.sel}</span></div>
+        ${esc(q.explanation)}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('qc').innerHTML=
+    `<div class="sc" style="padding-bottom:.5rem">
+       ${timeUp?'<div style="font-size:12px;color:#dc2626;margin-bottom:8px">制限時間になったため自動採点しました</div>':''}
+       <div style="font-size:14px;color:#6b7280">得点</div>
+       <div class="sc-num">${res.score}<span style="font-size:20px;color:#9ca3af"> / ${fin.qs.length}</span></div>
+       <div class="sc-lbl"><span class="pill ${res.pass?'pass':'fail'}">${res.pass?'合格ライン到達':'不合格'}</span>
+         <span style="margin-left:8px">合格基準 ${EXAM_PASS}点</span></div>
+       <div class="sc-grid">
+         <div class="si"><div class="si-n">${res.ox}/${EXAM_OX}</div><div class="si-l">○×式</div></div>
+         <div class="si"><div class="si-n">${res.three}/${EXAM_THREE}</div><div class="si-l">三答択一式</div></div>
+         <div class="si"><div class="si-n">${Math.round(res.score/fin.qs.length*100)}%</div><div class="si-l">正答率</div></div>
+       </div>
+       <div style="font-size:12px;font-weight:500;color:#6b7280;margin:8px 0">分野別正答率</div>
+       <div class="tgrid">${themeRows(res.theme)}</div>
+     </div>
+     ${wrongItems.length>0?`
+       <div style="font-size:13px;font-weight:600;margin-bottom:10px">間違えた問題（${wrongItems.length}問） — タップで解説を表示。学習モードの復習にも登録されました</div>
+       ${reviewHTML}`:'<div style="text-align:center;font-size:14px;margin-bottom:1rem">全問正解です！🎉</div>'}
+     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:1rem">
+       <button class="btn-p" onclick="goHome()">ホームへ</button>
+       <button onclick="startExam()">もう一度受験する</button>
+     </div>`;
+  window.scrollTo(0,0);
+}
+
+// ════════════ 成績・履歴 ════════════
+function showStats(){
+  view='stats';
+  const stats=getStats(), exams=getExams(), done=getDone(), wrongMap=getWrong();
+  const allPct=stats.total>0?Math.round(stats.correct/stats.total*100):0;
+  setBadge('成績・履歴'); setDiff(null); setCounter('');
+  setHUD('');
+  const rows=themeRows(stats.theme);
+  const hist=exams.length>0
+    ?`<div class="hist">${exams.map(e=>{
+        const d=new Date(e.date);
+        const ds=d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+        return `<div class="hist-row">
+          <span class="hist-date">${ds}</span>
+          <span>○× ${e.ox}/${EXAM_OX}　三択 ${e.three}/${EXAM_THREE}</span>
+          <span><b>${e.score}点</b>　<span class="pill ${e.pass?'pass':'fail'}">${e.pass?'合格':'不合格'}</span></span>
+        </div>`;}).join('')}
+      </div>`
+    :'<div style="font-size:13px;color:#6b7280;margin-bottom:1rem">まだ模試の受験履歴がありません。</div>';
+  document.getElementById('qc').innerHTML=
+    `<div class="sc" style="padding-top:.5rem;padding-bottom:.5rem">
+       <div class="sc-grid" style="margin-bottom:1rem">
+         <div class="si"><div class="si-n" style="color:#4f46e5">${done.size}/${ALL_Q.length}</div><div class="si-l">マスター済み</div></div>
+         <div class="si"><div class="si-n">${allPct}%</div><div class="si-l">累計正答率</div></div>
+         <div class="si"><div class="si-n" style="color:#d97706">${Object.keys(wrongMap).length}</div><div class="si-l">復習待ち</div></div>
+       </div>
+       ${rows?`<div style="font-size:12px;font-weight:500;color:#6b7280;margin-bottom:8px">分野別累計正答率</div>
+       <div class="tgrid">${rows}</div>`:''}
+     </div>
+     <div style="font-size:13px;font-weight:600;margin-bottom:8px">模試の受験履歴</div>
+     ${hist}
+     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:1rem">
+       <button class="btn-p" onclick="goHome()">ホームへ</button>
+       <button onclick="resetAll()" style="font-size:12px;color:#dc2626;border-color:#fca5a5">記録をリセット</button>
+     </div>`;
+}
+
+// 起動
+goHome();
+</script>
+</body>
+</html>
